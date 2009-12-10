@@ -50,6 +50,8 @@ abstract class PayPal {
 
 	// Environment type
 	protected $_environment = 'live';
+	
+	const api_version = '58.0';
 
 	/**
 	 * Creates a new PayPal instance for the given username, password,
@@ -138,7 +140,7 @@ abstract class PayPal {
 		// Create POST data
 		$post = array(
 			'METHOD'    => $method,
-			'VERSION'   => 51.0,
+			'VERSION'   => self::api_version,
 			'USER'      => $this->_username,
 			'PWD'       => $this->_password,
 			'SIGNATURE' => $this->_signature,
