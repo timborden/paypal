@@ -20,9 +20,10 @@ abstract class PayPal {
 	 * Returns a singleton instance of one of the PayPal classes.
 	 *
 	 * @param   string  class type (ExpressCheckout, PaymentsPro, etc)
+	 * @param   string  environment (one of: live, sandbox, sandbox-beta)			optional
 	 * @return  object
 	 */
-	public static function instance($type)
+	public static function instance($type, $environment = 'sandbox')
 	{
 		if ( ! isset(PayPal::$instances[$type]))
 		{
@@ -30,10 +31,16 @@ abstract class PayPal {
 			$class = 'PayPal_'.$type;
 
 			// Load default configuration
-			$config = Kohana::config('paypal');
+			$configs = Kohana::config('paypal');
+			if ( ! array_key_exists($environment, $configs))
+			{
+				throw new Kohana_Exception('PayPal configuration for :environment is missing',
+					array(':environment' => $environment));
+			}
+			$config = $configs[$environment];
 
 			// Create a new PayPal instance with the default configuration
-			PayPal::$instances[$type] = new $class($config['username'], $config['password'], $config['signature'], $config['environment']);
+			PayPal::$instances[$type] = new $class($config['username'], $config['password'], $config['signature'], $environment);
 		}
 
 		return PayPal::$instances[$type];
@@ -185,6 +192,56 @@ abstract class PayPal {
 		}
 
 		return $data;
+	}
+	
+	/**
+	 * Validates an Instant Payment Notification
+	 *
+	 * @see  https://www.x.com/docs/DOC-1084
+	 *
+	 * @throws  Kohana_Exception
+	 * @param   string  received POST data
+	 * @return  bool	valid
+	 */
+	public function validate_ipn(array $post)
+	{
+		$method = 'notify-validate';
+		
+		// Create POST data
+		$post = $post + array(
+			'cmd' => '_'.$method
+		);
+
+		// Create a new curl instance
+		$curl = curl_init();
+
+		// Set curl options
+		curl_setopt_array($curl, array(
+			CURLOPT_URL            => $this->api_url(),
+			CURLOPT_POST           => TRUE,
+			CURLOPT_POSTFIELDS     => http_build_query($post),
+			CURLOPT_SSL_VERIFYPEER => FALSE,
+			CURLOPT_SSL_VERIFYHOST => FALSE,
+			CURLOPT_RETURNTRANSFER => TRUE,
+		));
+
+		if (($response = curl_exec($curl)) === FALSE)
+		{
+			// Get the error code and message
+			$code  = curl_errno($curl);
+			$error = curl_error($curl);
+
+			// Close curl
+			curl_close($curl);
+
+			throw new Kohana_Exception('PayPal API request for :method failed: :error (:code)',
+				array(':method' => $method, ':error' => $error, ':code' => $code));
+		}
+
+		// Close curl
+		curl_close($curl);
+		
+		return $response == 'VERIFIED';
 	}
 
 } // End PayPal
