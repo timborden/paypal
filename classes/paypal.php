@@ -56,7 +56,7 @@ abstract class PayPal {
 	protected $_signature;
 
 	// Environment type
-	protected $_environment = 'live';
+	protected $_environment;
 	
 	const api_version = '58.0';
 
@@ -70,7 +70,7 @@ abstract class PayPal {
 	 * @param   string  environment (one of: live, sandbox, sandbox-beta)
 	 * @return  void
 	 */
-	public function __construct($username, $password, $signature, $environment = 'live')
+	public function __construct($username, $password, $signature, $environment)
 	{
 		// Set the API username and password
 		$this->_username = $username;
