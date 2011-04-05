@@ -20,10 +20,9 @@ abstract class PayPal {
 	 * Returns a singleton instance of one of the PayPal classes.
 	 *
 	 * @param   string  class type (ExpressCheckout, PaymentsPro, etc)
-	 * @param   string  environment (one of: live, sandbox, sandbox-beta)			optional
 	 * @return  object
 	 */
-	public static function instance($type, $environment = 'sandbox')
+	public static function instance($type)
 	{
 		if ( ! isset(PayPal::$instances[$type]))
 		{
@@ -32,15 +31,15 @@ abstract class PayPal {
 
 			// Load default configuration
 			$configs = Kohana::config('paypal');
-			if ( ! array_key_exists($environment, $configs))
+			if ( ! array_key_exists(Kohana::$environment, $configs))
 			{
 				throw new Kohana_Exception('PayPal configuration for :environment is missing',
-					array(':environment' => $environment));
+					array(':environment' => Kohana::$environment));
 			}
-			$config = $configs[$environment];
+			$config = $configs[Kohana::$environment];
 
 			// Create a new PayPal instance with the default configuration
-			PayPal::$instances[$type] = new $class($config['username'], $config['password'], $config['signature'], $environment);
+			PayPal::$instances[$type] = new $class($config['username'], $config['password'], $config['signature'], $config['url'], Kohana::$environment);
 		}
 
 		return PayPal::$instances[$type];
@@ -55,6 +54,9 @@ abstract class PayPal {
 	// API signature
 	protected $_signature;
 
+	// API URL
+	protected $_url;
+
 	// Environment type
 	protected $_environment;
 	
@@ -67,41 +69,24 @@ abstract class PayPal {
 	 * @param   string  API username
 	 * @param   string  API password
 	 * @param   string  API signature
-	 * @param   string  environment (one of: live, sandbox, sandbox-beta)
+	 * @param   string  API URL
+	 * @param   string  environment (one of: PRODUCTION, STAGING, TESTING or DEVELOPMENT)
 	 * @return  void
 	 */
-	public function __construct($username, $password, $signature, $environment)
+	public function __construct($username, $password, $signature, $url, $environment)
 	{
 		// Set the API username and password
 		$this->_username = $username;
 		$this->_password = $password;
 
 		// Set the API signature
+		$this->_url = $url;
+
+		// Set the API signature
 		$this->_signature = $signature;
 
 		// Set the environment
 		$this->_environment = $environment;
-	}
-
-	/**
-	 * Returns the NVP API URL for the current environment.
-	 *
-	 * @return  string
-	 */
-	public function api_url()
-	{
-		if ($this->_environment === 'live')
-		{
-			// Live environment does not use a sub-domain
-			$env = '';
-		}
-		else
-		{
-			// Use the environment sub-domain
-			$env = $this->_environment.'.';
-		}
-
-		return 'https://api-3t.'.$env.'paypal.com/nvp';
 	}
 
 	/**
@@ -158,7 +143,7 @@ abstract class PayPal {
 
 		// Set curl options
 		curl_setopt_array($curl, array(
-			CURLOPT_URL            => $this->api_url(),
+			CURLOPT_URL            => $this->_url,
 			CURLOPT_POST           => TRUE,
 			CURLOPT_POSTFIELDS     => http_build_query($post, NULL, '&'),
 			CURLOPT_SSL_VERIFYPEER => FALSE,
@@ -217,7 +202,7 @@ abstract class PayPal {
 
 		// Set curl options
 		curl_setopt_array($curl, array(
-			CURLOPT_URL            => $this->api_url(),
+			CURLOPT_URL            => $this->_url,
 			CURLOPT_POST           => TRUE,
 			CURLOPT_POSTFIELDS     => http_build_query($post),
 			CURLOPT_SSL_VERIFYPEER => FALSE,
