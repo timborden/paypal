@@ -9,8 +9,8 @@ return array(
 		// PayPal API signature
 		'signature' => NULL,
 		
-		// PayPal API URL
-		'url' => NULL,
+		// PayPal API environment
+		'environment' => NULL,
 	),
 	Kohana::STAGING => array(
 		// PayPal API and username
@@ -20,8 +20,8 @@ return array(
 		// PayPal API signature
 		'signature' => NULL,
 		
-		// PayPal API URL
-		'url' => NULL,
+		// PayPal API environment
+		'environment' => NULL,
 	),
 	Kohana::TESTING => array(
 		// PayPal API and username
@@ -31,8 +31,8 @@ return array(
 		// PayPal API signature
 		'signature' => NULL,
 		
-		// PayPal API URL
-		'url' => NULL,
+		// PayPal API environment
+		'environment' => NULL,
 	),
 	Kohana::DEVELOPMENT => array(
 		// PayPal API and username
@@ -42,7 +42,7 @@ return array(
 		// PayPal API signature
 		'signature' => NULL,
 		
-		// PayPal API URL
-		'url' => NULL,
+		// PayPal API environment
+		'environment' => NULL,
 	),
 );
