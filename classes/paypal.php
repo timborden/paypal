@@ -20,10 +20,9 @@ abstract class PayPal {
 	 * Returns a singleton instance of one of the PayPal classes.
 	 *
 	 * @param   string  class type (ExpressCheckout, PaymentsPro, etc)
-	 * @param   array   config override
 	 * @return  object
 	 */
-	public static function instance($type, $config = NULL)
+	public static function instance($type)
 	{
 		if ( ! isset(PayPal::$instances[$type]))
 		{
@@ -42,11 +41,35 @@ abstract class PayPal {
 				$config = $configs[Kohana::$environment];
 			}
 
-			// Create a new PayPal instance with the default configuration
-			PayPal::$instances[$type] = new $class($config['username'], $config['password'], $config['signature'], $config['environment']);
+			// Create a new PayPal instance with the environment configuration
+			PayPal::$instances[$type] = PayPal::factory($type, $config);
 		}
 
 		return PayPal::$instances[$type];
+	}
+	
+	/**
+	* Returns an instance of one of the PayPal classes.
+	* 
+	* @param   string class type (ExpressCheckout, PaymentsPro, etc)
+	* @param   array configuration
+	* @return  object
+	*/
+	public static function factory($type, $config)
+	{
+	  $class = "PayPal_{$type}";
+	  
+	  // Make sure config object is complete
+	  $config_fields = array_keys($config);
+	  
+	  foreach (array('username', 'password', 'signature', 'environment') as $field)
+	  {
+	    if (in_array($field, $config_fields) === FALSE)
+	      throw new Kohana_Exception('PayPal configuration is missing :field', array(':field' => $field));
+	  }
+	  
+	  // Create new PayPal instance with specified configuration
+	  return new $class($config['username'], $config['password'], $config['signature'], $config['environment']);
 	}
 
 	// API username
