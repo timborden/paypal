@@ -26,9 +26,6 @@ abstract class PayPal {
 	{
 		if ( ! isset(PayPal::$instances[$type]))
 		{
-			// Set the class name
-			$class = 'PayPal_'.$type;
-
 			// Load default configuration
 			if($config === NULL)
 			{
