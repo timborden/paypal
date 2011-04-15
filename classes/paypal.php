@@ -12,6 +12,11 @@
 abstract class PayPal {
 
 	/**
+	 * @var  string  default instance name
+	 */
+	public static $default = 'default';
+
+	/**
 	 * @var  array  instances
 	 */
 	public static $instances = array();
@@ -20,22 +25,29 @@ abstract class PayPal {
 	 * Returns a singleton instance of one of the PayPal classes.
 	 *
 	 * @param   string  class type (ExpressCheckout, PaymentsPro, etc)
+	 * @param   string  config name
 	 * @return  object
 	 */
-	public static function instance($type)
+	public static function instance($type, $name = NULL)
 	{
+		if ($name === NULL)
+		{
+			// Use the default instance name
+			$name = PayPal::$default;
+		}
+
 		if ( ! isset(PayPal::$instances[$type]))
 		{
 			// Load default configuration
 			if($config === NULL)
 			{
 				$configs = Kohana::config('paypal');
-				if ( ! array_key_exists(Kohana::$environment, $configs))
+				if ( ! array_key_exists($name, $configs))
 				{
 					throw new Kohana_Exception('PayPal configuration for :environment is missing',
-						array(':environment' => Kohana::$environment));
+						array(':environment' => $name));
 				}
-				$config = $configs[Kohana::$environment];
+				$config = $configs[$name];
 			}
 
 			// Create a new PayPal instance with the environment configuration
