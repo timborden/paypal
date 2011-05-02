@@ -10,7 +10,7 @@ return array(
 		'signature' => NULL,
 		
 		// PayPal API environment
-		'environment' => NULL,
+		'environment' => 'sandbox',
 	),
 	'live' => array(
 		// PayPal API and username
@@ -21,6 +21,6 @@ return array(
 		'signature' => NULL,
 		
 		// PayPal API environment
-		'environment' => NULL,
+		'environment' => 'live',
 	),
 );
