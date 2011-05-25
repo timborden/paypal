@@ -38,17 +38,13 @@ abstract class PayPal {
 
 		if ( ! isset(PayPal::$instances[$type]))
 		{
-			// Load default configuration
-			if($config === NULL)
+			$configs = Kohana::config('paypal');
+			if ( ! array_key_exists($name, $configs))
 			{
-				$configs = Kohana::config('paypal');
-				if ( ! array_key_exists($name, $configs))
-				{
-					throw new Kohana_Exception('PayPal configuration for :name is missing',
-						array(':name' => $name));
-				}
-				$config = $configs[$name];
+				throw new Kohana_Exception('PayPal configuration for :name is missing',
+					array(':name' => $name));
 			}
+			$config = $configs[$name];
 
 			// Create a new PayPal instance with the named configuration
 			PayPal::$instances[$type] = PayPal::factory($type, $config);
