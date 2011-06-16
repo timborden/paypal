@@ -9,7 +9,7 @@
  * @copyright  (c) 2009 Kohana Team
  * @license    http://kohanaphp.com/license.html
  */
-class PayPal_DirectPayment extends PayPal {
+class PayPal_WebsitePaymentsPro extends PayPal {
 
 	/**
 	 * DoDirectPayment method with a Sale action.
@@ -77,4 +77,17 @@ class PayPal_DirectPayment extends PayPal {
 		return $this->_post('DoVoid', $params);
 	}
 
+	/**
+	 * RefundTransaction method.
+	 *
+	 * @param  array   NVP parameters
+	 * required parameters: https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_r_RefundTransaction
+	 * @return  array   NVP response
+	 */
+	public function Refund(array $params = NULL)
+	{
+		return $this->_post('RefundTransaction', $params);
+	}
+
 } // End PayPal_DirectPayment
+
